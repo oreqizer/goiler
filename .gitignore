@@ -1,0 +1,10 @@
+.atom
+.idea
+.vscode
+bin/test
+vendor
+
+# Secrets
+.env
+sqlboiler.yaml
+firebase-private-key.json

@@ -1,0 +1,43 @@
+# https://gqlgen.com/config/
+
+schema:
+  - "graphql/**/*.graphql"
+
+exec:
+  filename: generated/exec.go
+  package: generated
+
+model:
+  filename: generated/models.go
+  package: generated
+
+resolver:
+  filename: graphql/resolver.go
+  type: Resolver
+
+models:
+  # General
+  PageInfo:
+    model: github.com/oreqizer/go-relay.PageInfo
+
+  # Account
+  Account:
+    model:
+      # 2nd due to https://github.com/99designs/gqlgen/issues/649
+      # Sentinel import for the generated code
+      - github.com/oreqizer/goiler/graphql/schemas.Account
+      - github.com/oreqizer/goiler/models.Account
+
+  # Types
+  Boolean:
+    model:
+      - github.com/99designs/gqlgen/graphql.Boolean
+      - github.com/oreqizer/goiler/graphql/scalars.NullBoolean
+  Int:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int
+      - github.com/oreqizer/goiler/graphql/scalars.NullInt
+  String:
+    model:
+      - github.com/99designs/gqlgen/graphql.String
+      - github.com/oreqizer/goiler/graphql/scalars.NullString
