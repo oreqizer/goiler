@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"github.com/getsentry/raven-go"
+	"github.com/oreqizer/go-relay"
 	"github.com/oreqizer/goiler/graphql/auth"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/schemas"
@@ -22,7 +23,13 @@ func (Query) Account(ctx context.Context) (*schemas.Account, error) {
 	return &schemas.Account{Account: *a.Account}, nil
 }
 
-func (Query) Accounts(ctx context.Context) ([]*schemas.Account, error) {
+func (Query) Accounts(
+	ctx context.Context,
+	after *string,
+	first *int,
+	before *string,
+	last *int,
+) (*schemas.AccountConnection, error) {
 	dbi := db.GetDB(ctx)
 
 	res, err := models.Accounts(
@@ -33,5 +40,12 @@ func (Query) Accounts(ctx context.Context) ([]*schemas.Account, error) {
 		return nil, db.ErrFetchingResults
 	}
 
-	return schemas.Accounts(res).ToSlice(), nil
+	args := relay.ConnectionArgs{
+		After:  after,
+		First:  first,
+		Before: before,
+		Last:   last,
+	}
+
+	return schemas.Accounts(res).ToConnection(&args), nil
 }

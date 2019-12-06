@@ -24,13 +24,64 @@ func (a *Account) ID() string {
 
 type Accounts []*models.Account
 
-func (s Accounts) ToSlice() []*Account {
+func (s Accounts) ToSlice() []Account {
+	ns := make([]Account, len(s))
+	for i, v := range s {
+		ns[i] = Account{Account: *v}
+	}
+
+	return ns
+}
+
+func (s Accounts) ToPointerSlice() []*Account {
 	ns := make([]*Account, len(s))
 	for i, v := range s {
 		ns[i] = &Account{Account: *v}
 	}
 
 	return ns
+}
+
+type AccountEdge struct {
+	Node   *Account
+	Cursor string
+}
+
+type AccountConnection struct {
+	Edges    []*AccountEdge
+	PageInfo relay.PageInfo
+}
+
+func (s Accounts) ToEdges() []*AccountEdge {
+	ns := make([]*AccountEdge, len(s))
+	for i, v := range s {
+		n := Account{Account: *v}
+		ns[i] = &AccountEdge{
+			Cursor: n.ID(),
+			Node:   &n,
+		}
+	}
+
+	return ns
+}
+
+func (s Accounts) ToConnection(args *relay.ConnectionArgs) *AccountConnection {
+	ns := make([]relay.Node, len(s))
+	for i, v := range s {
+		ns[i] = &Account{Account: *v}
+	}
+
+	conn := relay.ConnectionFromArray(ns, args)
+
+	edges := make([]*AccountEdge, len(conn.Edges))
+	for i, v := range conn.Edges {
+		edges[i] = &AccountEdge{Node: v.Node.(*Account), Cursor: v.Cursor}
+	}
+
+	return &AccountConnection{
+		Edges:    edges,
+		PageInfo: conn.PageInfo,
+	}
 }
 
 func MakeAccountLoader(ctx context.Context) *AccountLoader {
@@ -47,7 +98,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 				return nil, []error{db.ErrFetchingResults}
 			}
 
-			return Accounts(res).ToSlice(), nil
+			return Accounts(res).ToPointerSlice(), nil
 		},
 	})
 }

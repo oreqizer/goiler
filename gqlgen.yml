@@ -27,6 +27,10 @@ models:
       # Sentinel import for the generated code
       - github.com/oreqizer/goiler/graphql/schemas.Account
       - github.com/oreqizer/goiler/models.Account
+  AccountEdge:
+    model: github.com/oreqizer/goiler/graphql/schemas.AccountEdge
+  AccountConnection:
+    model: github.com/oreqizer/goiler/graphql/schemas.AccountConnection
 
   # Types
   Boolean:

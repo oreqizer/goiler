@@ -97,7 +97,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Account  func(childComplexity int) int
-		Accounts func(childComplexity int) int
+		Accounts func(childComplexity int, after *string, first *int, before *string, last *int) int
 		Node     func(childComplexity int, id string) int
 	}
 }
@@ -110,7 +110,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Node(ctx context.Context, id string) (Node, error)
 	Account(ctx context.Context) (*schemas.Account, error)
-	Accounts(ctx context.Context) ([]*schemas.Account, error)
+	Accounts(ctx context.Context, after *string, first *int, before *string, last *int) (*schemas.AccountConnection, error)
 }
 
 type executableSchema struct {
@@ -330,7 +330,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.Accounts(childComplexity), true
+		args, err := ec.field_Query_accounts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Accounts(childComplexity, args["after"].(*string), args["first"].(*int), args["before"].(*string), args["last"].(*int)), true
 
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
@@ -460,9 +465,7 @@ enum Role {
         id: ID!
     ): Node
     account: Account
-
-    # TODO Account connection
-    accounts: [Account] @hasRole(role: ADMIN)
+    accounts(after: String, first: Int, before: String, last: Int): AccountConnection @hasRole(role: ADMIN)
 }
 `},
 	&ast.Source{Name: "graphql/relay/schema.graphql", Input: `# An object with an ID
@@ -623,6 +626,44 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_accounts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["first"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg2
+	var arg3 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		arg3, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg3
 	return args, nil
 }
 
@@ -888,7 +929,7 @@ func (ec *executionContext) _Account_updatedAt(ctx context.Context, field graphq
 	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AccountConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *AccountConnection) graphql.Marshaler {
+func (ec *executionContext) _AccountConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *schemas.AccountConnection) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -909,13 +950,13 @@ func (ec *executionContext) _AccountConnection_pageInfo(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*relay.PageInfo)
+	res := resTmp.(relay.PageInfo)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNPageInfo2ᚖgithubᚗcomᚋoreqizerᚋgoᚑrelayᚐPageInfo(ctx, field.Selections, res)
+	return ec.marshalNPageInfo2githubᚗcomᚋoreqizerᚋgoᚑrelayᚐPageInfo(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AccountConnection_edges(ctx context.Context, field graphql.CollectedField, obj *AccountConnection) graphql.Marshaler {
+func (ec *executionContext) _AccountConnection_edges(ctx context.Context, field graphql.CollectedField, obj *schemas.AccountConnection) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -933,13 +974,13 @@ func (ec *executionContext) _AccountConnection_edges(ctx context.Context, field 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*AccountEdge)
+	res := resTmp.([]*schemas.AccountEdge)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAccountEdge(ctx, field.Selections, res)
+	return ec.marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountEdge(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AccountEdge_node(ctx context.Context, field graphql.CollectedField, obj *AccountEdge) graphql.Marshaler {
+func (ec *executionContext) _AccountEdge_node(ctx context.Context, field graphql.CollectedField, obj *schemas.AccountEdge) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -963,7 +1004,7 @@ func (ec *executionContext) _AccountEdge_node(ctx context.Context, field graphql
 	return ec.marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AccountEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *AccountEdge) graphql.Marshaler {
+func (ec *executionContext) _AccountEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *schemas.AccountEdge) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() { ec.Tracer.EndFieldExecution(ctx) }()
 	rctx := &graphql.ResolverContext{
@@ -1397,18 +1438,25 @@ func (ec *executionContext) _Query_accounts(ctx context.Context, field graphql.C
 		IsMethod: true,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_accounts_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Accounts(rctx)
+		return ec.resolvers.Query().Accounts(rctx, args["after"].(*string), args["first"].(*int), args["before"].(*string), args["last"].(*int))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*schemas.Account)
+	res := resTmp.(*schemas.AccountConnection)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAccount2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, field.Selections, res)
+	return ec.marshalOAccountConnection2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
@@ -2466,7 +2514,7 @@ func (ec *executionContext) _Account(ctx context.Context, sel ast.SelectionSet, 
 
 var accountConnectionImplementors = []string{"AccountConnection"}
 
-func (ec *executionContext) _AccountConnection(ctx context.Context, sel ast.SelectionSet, obj *AccountConnection) graphql.Marshaler {
+func (ec *executionContext) _AccountConnection(ctx context.Context, sel ast.SelectionSet, obj *schemas.AccountConnection) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, accountConnectionImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2495,7 +2543,7 @@ func (ec *executionContext) _AccountConnection(ctx context.Context, sel ast.Sele
 
 var accountEdgeImplementors = []string{"AccountEdge"}
 
-func (ec *executionContext) _AccountEdge(ctx context.Context, sel ast.SelectionSet, obj *AccountEdge) graphql.Marshaler {
+func (ec *executionContext) _AccountEdge(ctx context.Context, sel ast.SelectionSet, obj *schemas.AccountEdge) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.RequestContext, sel, accountEdgeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3023,16 +3071,6 @@ func (ec *executionContext) marshalNPageInfo2githubᚗcomᚋoreqizerᚋgoᚑrela
 	return ec._PageInfo(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPageInfo2ᚖgithubᚗcomᚋoreqizerᚋgoᚑrelayᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *relay.PageInfo) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._PageInfo(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalNRole2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐRole(ctx context.Context, v interface{}) (Role, error) {
 	var res Role
 	return res, res.UnmarshalGQL(v)
@@ -3300,46 +3338,6 @@ func (ec *executionContext) marshalOAccount2githubᚗcomᚋoreqizerᚋgoilerᚋg
 	return ec._Account(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOAccount2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx context.Context, sel ast.SelectionSet, v []*schemas.Account) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		rctx := &graphql.ResolverContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
-}
-
 func (ec *executionContext) marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx context.Context, sel ast.SelectionSet, v *schemas.Account) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -3347,11 +3345,22 @@ func (ec *executionContext) marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoiler�
 	return ec._Account(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOAccountEdge2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v AccountEdge) graphql.Marshaler {
+func (ec *executionContext) marshalOAccountConnection2githubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountConnection(ctx context.Context, sel ast.SelectionSet, v schemas.AccountConnection) graphql.Marshaler {
+	return ec._AccountConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOAccountConnection2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountConnection(ctx context.Context, sel ast.SelectionSet, v *schemas.AccountConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AccountConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOAccountEdge2githubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v schemas.AccountEdge) graphql.Marshaler {
 	return ec._AccountEdge(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v []*AccountEdge) graphql.Marshaler {
+func (ec *executionContext) marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v []*schemas.AccountEdge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3378,7 +3387,7 @@ func (ec *executionContext) marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalOAccountEdge2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAccountEdge(ctx, sel, v[i])
+			ret[i] = ec.marshalOAccountEdge2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountEdge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3391,7 +3400,7 @@ func (ec *executionContext) marshalOAccountEdge2ᚕᚖgithubᚗcomᚋoreqizerᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalOAccountEdge2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v *AccountEdge) graphql.Marshaler {
+func (ec *executionContext) marshalOAccountEdge2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccountEdge(ctx context.Context, sel ast.SelectionSet, v *schemas.AccountEdge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -3452,6 +3461,29 @@ func (ec *executionContext) marshalOEditAccountPayload2ᚖgithubᚗcomᚋoreqize
 		return graphql.Null
 	}
 	return ec._EditAccountPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.marshalOInt2int(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalONode2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐNode(ctx context.Context, sel ast.SelectionSet, v Node) graphql.Marshaler {

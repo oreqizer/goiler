@@ -7,22 +7,11 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/oreqizer/go-relay"
 	"github.com/oreqizer/goiler/graphql/schemas"
 )
 
 type Node interface {
 	IsNode()
-}
-
-type AccountConnection struct {
-	PageInfo *relay.PageInfo `json:"pageInfo"`
-	Edges    []*AccountEdge  `json:"edges"`
-}
-
-type AccountEdge struct {
-	Node   *schemas.Account `json:"node"`
-	Cursor string           `json:"cursor"`
 }
 
 type AddAccountInput struct {
