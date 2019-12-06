@@ -3,7 +3,7 @@ package query
 import (
 	"context"
 	"github.com/getsentry/raven-go"
-	"github.com/oreqizer/go-relay"
+	"github.com/oreqizer/go-relaygen/relay"
 	"github.com/oreqizer/goiler/graphql/auth"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/schemas"
@@ -47,5 +47,5 @@ func (Query) Accounts(
 		Last:   last,
 	}
 
-	return schemas.Accounts(res).ToConnection(&args), nil
+	return schemas.AccountConnectionFromArray(schemas.Accounts(res).ToSlice(), &args), nil
 }
