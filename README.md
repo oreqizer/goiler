@@ -4,10 +4,11 @@ The best boilerplate for a **Go** backend — running on `gqlgen` and `sqlboiler
 
 ## Features
 
-* `go generate` — **GQLgen**, **SQLboiler** and **Dataloaden**
+* `go generate` — **GQLgen**, **SQLboiler**, **Dataloaden** and **RelayGen**
 * Postgres
 * Migrations
 * Firebase auth
+* Relay
 * Query complexity
 * Sentry
 
