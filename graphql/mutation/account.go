@@ -17,14 +17,10 @@ func (Mutation) AddAccount(
 	ctx context.Context,
 	input generated.AddAccountInput,
 ) (*generated.AddAccountPayload, error) {
-	dbi, err := db.GetDB(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	a, err := auth.GetAuth(ctx)
-	if err != nil {
-		return nil, err
+	dbi := db.GetDB(ctx)
+	a := auth.GetAuth(ctx)
+	if a == nil {
+		return nil, auth.ErrNoToken
 	}
 
 	model := models.Account{
@@ -52,11 +48,7 @@ func (Mutation) EditAccount(
 	ctx context.Context,
 	input generated.EditAccountInput,
 ) (*generated.EditAccountPayload, error) {
-	dbi, err := db.GetDB(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+	dbi := db.GetDB(ctx)
 	a, err := auth.GetAuthAccount(ctx)
 	if err != nil {
 		return nil, err
@@ -82,11 +74,7 @@ func (Mutation) DeleteAccount(
 	ctx context.Context,
 	input generated.DeleteAccountInput,
 ) (*generated.DeleteAccountPayload, error) {
-	dbi, err := db.GetDB(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+	dbi := db.GetDB(ctx)
 	a, err := auth.GetAuthAccount(ctx)
 	if err != nil {
 		return nil, err

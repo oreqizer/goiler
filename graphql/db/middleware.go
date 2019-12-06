@@ -22,11 +22,8 @@ func Middleware(db *sql.DB) func(http.Handler) http.Handler {
 	}
 }
 
-func GetDB(ctx context.Context) (*sql.DB, error) {
-	DB, ok := ctx.Value(keyDB).(*sql.DB)
-	if !ok {
-		return nil, ErrDefault
-	}
+func GetDB(ctx context.Context) *sql.DB {
+	DB := ctx.Value(keyDB).(*sql.DB)
 
-	return DB, nil
+	return DB
 }

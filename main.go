@@ -18,6 +18,7 @@ import (
 	"github.com/oreqizer/goiler/graphql"
 	"github.com/oreqizer/goiler/graphql/auth"
 	"github.com/oreqizer/goiler/graphql/db"
+	"github.com/oreqizer/goiler/graphql/schemas"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
@@ -62,6 +63,7 @@ func main() {
 
 	r.Use(db.Middleware(dbi))
 	r.Use(auth.Middleware(dbi, fb))
+	r.Use(schemas.Middleware())
 
 	schema := generated.NewExecutableSchema(generated.Config{Resolvers: &graphql.Resolver{}})
 

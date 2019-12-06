@@ -1,8 +1,14 @@
 package schemas
 
 import (
+	"context"
+	"github.com/getsentry/raven-go"
 	"github.com/oreqizer/go-relay"
+	"github.com/oreqizer/goiler/graphql/auth"
+	"github.com/oreqizer/goiler/graphql/db"
+	"github.com/oreqizer/goiler/graphql/slices"
 	"github.com/oreqizer/goiler/models"
+	. "github.com/volatiletech/sqlboiler/queries/qm"
 )
 
 const TypeAccount = "Account"
@@ -19,11 +25,42 @@ func (a *Account) ID() string {
 
 type Accounts []*models.Account
 
-func (s Accounts) ToSlice() []Account {
-	ns := make([]Account, len(s))
+func (s Accounts) ToSlice() []*Account {
+	ns := make([]*Account, len(s))
 	for i, v := range s {
-		ns[i] = Account{Account: *v}
+		ns[i] = &Account{Account: *v}
 	}
 
 	return ns
+}
+
+func MakeAccountLoader(ctx context.Context) *AccountLoader {
+	return NewAccountLoader(AccountLoaderConfig{
+		Fetch: func(keys []string) (accounts []*Account, errors []error) {
+			// Only admin can list accounts
+			_, err := auth.GetAuthAdmin(ctx)
+			if err != nil {
+				return nil, []error{err}
+			}
+
+			dbi := db.GetDB(ctx)
+
+			res, err := models.Accounts(
+				db.QueryNotDeleted,
+				WhereIn("id in ?", slices.StringsToInterfaces(keys)...),
+			).All(ctx, dbi)
+			if err != nil {
+				raven.CaptureError(err, nil)
+				return nil, []error{db.ErrFetchingResults}
+			}
+
+			return Accounts(res).ToSlice(), nil
+		},
+	})
+}
+
+func GetAccountLoader(ctx context.Context) *AccountLoader {
+	acc := ctx.Value(keyAccount).(*AccountLoader)
+
+	return acc
 }

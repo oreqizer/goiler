@@ -7,13 +7,9 @@ import (
 )
 
 func (Query) Account(ctx context.Context) (*schemas.Account, error) {
-	a, err := auth.GetAuth(ctx)
-	if err == auth.ErrorNotInContext {
+	a := auth.GetAuth(ctx)
+	if a == nil {
 		return nil, nil
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	if a.Account == nil {

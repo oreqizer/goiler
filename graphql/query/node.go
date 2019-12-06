@@ -14,10 +14,7 @@ import (
 )
 
 func (Query) Node(ctx context.Context, id string) (generated.Node, error) {
-	dbi, err := db.GetDB(ctx)
-	if err != nil {
-		return nil, err
-	}
+	dbi := db.GetDB(ctx)
 
 	local := relay.FromGlobalID(id)
 	if local == nil {

@@ -2,5 +2,7 @@ package db
 
 import "errors"
 
-var ErrDefault = errors.New("database error")
-var ErrFetchingResults = errors.New("database error while fetching results")
+var (
+	ErrDefault         = errors.New("database error")
+	ErrFetchingResults = errors.New("database error while fetching results")
+)

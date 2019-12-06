@@ -50,7 +50,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 
 			// Allow unauthenticated users in
 			if authID == "" {
-				next.ServeHTTP(w, r)
+				next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), keyAuth, nil)))
 				return
 			}
 
@@ -60,6 +60,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 				ctx = context.WithValue(r.Context(), keyAuth, &Auth{
 					AuthID: authID,
 				})
+
 				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
@@ -79,49 +80,27 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 	}
 }
 
-func GetAuth(ctx context.Context) (*Auth, error) {
-	auth, ok := ctx.Value(keyAuth).(*Auth)
-	if !ok {
-		return nil, ErrorNotInContext
-	}
+func GetAuth(ctx context.Context) *Auth {
+	auth := ctx.Value(keyAuth).(*Auth)
 
-	return auth, nil
+	return auth
 }
 
 func GetAuthAccount(ctx context.Context) (*Auth, error) {
-	auth, ok := ctx.Value(keyAuth).(*Auth)
-	if !ok {
-		return nil, ErrorNotInContext
-	}
+	auth := GetAuth(ctx)
 
-	if auth.Account == nil {
-		return nil, ErrorNotOwner
-	}
-
-	return auth, nil
-}
-
-func GetAuthOwner(ctx context.Context, userID string) (*Auth, error) {
-	auth, ok := ctx.Value(keyAuth).(*Auth)
-	if !ok {
-		return nil, ErrorNotInContext
-	}
-
-	if !auth.Account.IsAdmin && auth.Account.ID != userID {
-		return nil, ErrorNotOwner
+	if auth == nil || auth.Account == nil {
+		return nil, ErrNotOwner
 	}
 
 	return auth, nil
 }
 
 func GetAuthAdmin(ctx context.Context) (*Auth, error) {
-	auth, ok := ctx.Value(keyAuth).(*Auth)
-	if !ok {
-		return nil, ErrorNotInContext
-	}
+	auth := GetAuth(ctx)
 
-	if !auth.Account.IsAdmin {
-		return nil, ErrorNotAdmin
+	if auth == nil || !auth.Account.IsAdmin {
+		return nil, ErrNotAdmin
 	}
 
 	return auth, nil

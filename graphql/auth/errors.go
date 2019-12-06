@@ -3,7 +3,7 @@ package auth
 import "errors"
 
 var (
-	ErrorNotAdmin     = errors.New("user is not an admin")
-	ErrorNotOwner     = errors.New("user is not the trip owner")
-	ErrorNotInContext = errors.New("user not in context")
+	ErrNotAdmin = errors.New("user is not an admin")
+	ErrNoToken  = errors.New("no user token present")
+	ErrNotOwner = errors.New("user is not the trip owner")
 )
