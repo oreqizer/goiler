@@ -1,7 +1,6 @@
 .atom
 .idea
 .vscode
-bin/test
 vendor
 
 # Secrets
