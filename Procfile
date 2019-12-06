@@ -1,2 +1,2 @@
-release: migrate -source file://migrations -database $DATABASE_URL up
+release: bin/migrate
 web: bin/goiler
