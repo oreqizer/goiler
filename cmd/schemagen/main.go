@@ -23,7 +23,7 @@ func main() {
 
 	flag.Parse()
 
-	f, err := os.Create(strings.ToLower(typename) + "relay_gen.go")
+	f, err := os.Create(strings.ToLower(typename) + "schemagen_gen.go")
 	if err != nil {
 		log.Fatal(err)
 	}
