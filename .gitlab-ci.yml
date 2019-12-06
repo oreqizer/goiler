@@ -1,0 +1,47 @@
+image: golang:1.8
+
+stages:
+  - build
+  - release
+
+before_script:
+  - mv /builds $GOPATH/src/gitlab.com  # due to imports
+  - go get
+
+build:
+  stage: build
+  script:
+    - go build main.go
+
+test:
+  stage: build
+  script:
+    - go test -cover ./...
+
+lint:
+  stage: build
+  script:
+    - golint -set_exit_status ./...
+
+vet:
+  stage: build
+  script:
+    - go vet ./...
+
+staging:
+  image: ruby
+  stage: release
+  script:
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_DEV --api-key=$HEROKU_API_KEY
+  only:
+    - develop
+
+production:
+  image: ruby
+  stage: release
+  script:
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP --api-key=$HEROKU_API_KEY
+  only:
+    - master

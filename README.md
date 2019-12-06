@@ -2,6 +2,9 @@
 
 The best boilerplate for a **Go** backend — running on `gqlgen` and `sqlboiler`!
 
+**TODO**
+- [ ] `golint` issues
+
 ## Features
 
 * `go generate` — **GQLgen**, **SQLboiler**, **Dataloaden** and **RelayGen**

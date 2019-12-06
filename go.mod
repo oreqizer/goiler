@@ -31,7 +31,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/joho/godotenv v1.3.0
 	github.com/jstemmer/go-junit-report v0.9.1 // indirect
-	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12 // indirect
+	github.com/kat-co/vala v0.0.0-20170210184112-42e1d8b61f12
 	github.com/kisielk/errcheck v1.2.0 // indirect
 	github.com/kr/pty v1.1.5 // indirect
 	github.com/lib/pq v1.2.0
@@ -51,7 +51,7 @@ require (
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.4.0 // indirect
+	github.com/spf13/viper v1.4.0
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/ugorji/go v1.1.5-pre // indirect
 	github.com/vektah/dataloaden v0.3.0

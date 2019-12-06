@@ -1,4 +1,4 @@
-//go:generate sqlboiler --wipe --no-hooks psql
+//go:generate sqlboiler --wipe --no-hooks --no-tests psql
 //go:generate go run github.com/99designs/gqlgen
 
 package main
