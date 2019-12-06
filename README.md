@@ -2,6 +2,15 @@
 
 The best boilerplate for a **Go** backend — running on `gqlgen` and `sqlboiler`!
 
+## Features
+
+* `go generate` — **GQLgen**, **SQLboiler** and **Dataloaden**
+* Postgres
+* Migrations
+* Firebase auth
+* Query complexity
+* Sentry
+
 ## Setup
 
 You need a `.env` file with the following variables:

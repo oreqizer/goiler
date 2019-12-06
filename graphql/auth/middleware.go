@@ -90,16 +90,19 @@ func GetAuthAccount(ctx context.Context) (*Auth, error) {
 	auth := GetAuth(ctx)
 
 	if auth == nil || auth.Account == nil {
-		return nil, ErrNotOwner
+		return nil, ErrUnauthorized
 	}
 
 	return auth, nil
 }
 
 func GetAuthAdmin(ctx context.Context) (*Auth, error) {
-	auth := GetAuth(ctx)
+	auth, err := GetAuthAccount(ctx)
+	if err != nil {
+		return nil, ErrNotAdmin
+	}
 
-	if auth == nil || !auth.Account.IsAdmin {
+	if !auth.Account.IsAdmin {
 		return nil, ErrNotAdmin
 	}
 

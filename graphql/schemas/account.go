@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/getsentry/raven-go"
 	"github.com/oreqizer/go-relay"
-	"github.com/oreqizer/goiler/graphql/auth"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/slices"
 	"github.com/oreqizer/goiler/models"
@@ -37,12 +36,6 @@ func (s Accounts) ToSlice() []*Account {
 func MakeAccountLoader(ctx context.Context) *AccountLoader {
 	return NewAccountLoader(AccountLoaderConfig{
 		Fetch: func(keys []string) (accounts []*Account, errors []error) {
-			// Only admin can list accounts
-			_, err := auth.GetAuthAdmin(ctx)
-			if err != nil {
-				return nil, []error{err}
-			}
-
 			dbi := db.GetDB(ctx)
 
 			res, err := models.Accounts(

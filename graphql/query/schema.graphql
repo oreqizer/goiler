@@ -5,4 +5,7 @@ type Query {
         id: ID!
     ): Node
     account: Account
+
+    # TODO Account connection
+    accounts: [Account] @hasRole(role: ADMIN)
 }

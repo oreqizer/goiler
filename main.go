@@ -24,6 +24,10 @@ import (
 	"net/http"
 )
 
+const (
+	complexity = 100
+)
+
 func main() {
 	cfg, err := config.New()
 	if err != nil {
@@ -65,10 +69,18 @@ func main() {
 	r.Use(auth.Middleware(dbi, fb))
 	r.Use(schemas.Middleware())
 
-	schema := generated.NewExecutableSchema(generated.Config{Resolvers: &graphql.Resolver{}})
+	resolver := generated.Config{Resolvers: &graphql.Resolver{}}
+
+	graphql.Directives(&resolver)
+	graphql.Complexity(&resolver)
+
+	schema := generated.NewExecutableSchema(resolver)
 
 	r.Get("/", handler.Playground("GraphQL playground", "/graphql"))
-	r.Post("/graphql", handler.GraphQL(schema))
+	r.Post("/graphql", handler.GraphQL(
+		schema,
+		handler.ComplexityLimit(complexity),
+	))
 
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, r))
 }
