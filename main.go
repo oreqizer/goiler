@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	complexity = 100
+	complexity = 250
 )
 
 func main() {
