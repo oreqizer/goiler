@@ -5,7 +5,6 @@ stages:
   - release
 
 before_script:
-  - mv /builds $GOPATH/src/gitlab.com  # due to imports
   - go get
 
 build:
