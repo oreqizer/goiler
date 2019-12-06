@@ -18,7 +18,7 @@ resolver:
 models:
   # General
   PageInfo:
-    model: github.com/oreqizer/go-relay.PageInfo
+    model: github.com/oreqizer/go-relaygen/relay.PageInfo
 
   # Account
   Account:

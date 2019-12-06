@@ -1,7 +1,7 @@
 package ids
 
 import (
-	"github.com/oreqizer/go-relay"
+	"github.com/oreqizer/go-relaygen/relay"
 	"strconv"
 )
 

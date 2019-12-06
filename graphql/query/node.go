@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/getsentry/raven-go"
-	"github.com/oreqizer/go-relay"
+	"github.com/oreqizer/go-relaygen/relay"
 	"github.com/oreqizer/goiler/generated"
 	"github.com/oreqizer/goiler/graphql/auth"
 	"github.com/oreqizer/goiler/graphql/db"
