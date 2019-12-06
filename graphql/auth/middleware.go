@@ -4,10 +4,10 @@ import (
 	"context"
 	"database/sql"
 	firebase "firebase.google.com/go"
+	"github.com/getsentry/raven-go"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/models"
 	. "github.com/volatiletech/sqlboiler/queries/qm"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -24,7 +24,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 			ctx := r.Context()
 			client, err := fb.Auth(ctx)
 			if err != nil {
-				log.Println(err)
+				raven.CaptureError(err, nil)
 				http.Error(w, "auth provider error", http.StatusInternalServerError)
 				return
 			}
@@ -41,7 +41,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 			} else {
 				token, err := client.VerifyIDToken(ctx, header)
 				if err != nil {
-					log.Println(err)
+					raven.CaptureError(err, nil)
 					http.Error(w, "auth error", http.StatusUnauthorized)
 					return
 				}
@@ -65,7 +65,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 				return
 			}
 			if err != nil {
-				log.Println(err)
+				raven.CaptureError(err, nil)
 				http.Error(w, "database error", http.StatusInternalServerError)
 				return
 			}

@@ -1,9 +1,9 @@
 package auth
 
-import "errors"
+import "github.com/vektah/gqlparser/gqlerror"
 
 var (
-	ErrNotAdmin = errors.New("user is not an admin")
-	ErrNoToken  = errors.New("no user token present")
-	ErrNotOwner = errors.New("user is not the trip owner")
+	ErrNotAdmin = gqlerror.Errorf("user is not an admin")
+	ErrNoToken  = gqlerror.Errorf("no user token present")
+	ErrNotOwner = gqlerror.Errorf("user is not the trip owner")
 )

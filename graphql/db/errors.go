@@ -1,8 +1,8 @@
 package db
 
-import "errors"
+import "github.com/vektah/gqlparser/gqlerror"
 
 var (
-	ErrDefault         = errors.New("database error")
-	ErrFetchingResults = errors.New("database error while fetching results")
+	ErrDefault         = gqlerror.Errorf("database error")
+	ErrFetchingResults = gqlerror.Errorf("database error while fetching results")
 )
