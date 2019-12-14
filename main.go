@@ -40,7 +40,7 @@ func main() {
 
 	// CORS
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{cfg.Cors},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodOptions},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
