@@ -14,6 +14,7 @@ The best boilerplate for a **Go** backend — running on `gqlgen` and `sqlboiler
 * Firebase auth
 * Relay
 * Query complexity
+* Persisted queries
 * CI
 * Heroku
 * Sentry

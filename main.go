@@ -17,11 +17,13 @@ import (
 	"github.com/oreqizer/goiler/generated"
 	"github.com/oreqizer/goiler/graphql"
 	"github.com/oreqizer/goiler/graphql/auth"
+	"github.com/oreqizer/goiler/graphql/cache"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/schemas"
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
+	"time"
 )
 
 const (
@@ -80,6 +82,7 @@ func main() {
 	r.Post("/graphql", handler.GraphQL(
 		schema,
 		handler.ComplexityLimit(complexity),
+		handler.EnablePersistedQueryCache(cache.New(24*time.Hour)),
 	))
 
 	log.Fatal(http.ListenAndServe(":"+cfg.Port, r))

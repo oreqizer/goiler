@@ -290,6 +290,8 @@ github.com/oreqizer/go-relaygen v0.0.0-20191206142527-eccf8d32ab91 h1:DLQ+gcG1oW
 github.com/oreqizer/go-relaygen v0.0.0-20191206142527-eccf8d32ab91/go.mod h1:kxHyvyGeCRDUbr1HpCMWIr9+Ex5+fIQX+k8M3Wfoh5o=
 github.com/oreqizer/go-relaygen v1.0.0 h1:DcpfJiLBwBSd4fttTutSJhUVbdADykZowxkKs4VY3uI=
 github.com/oreqizer/go-relaygen v1.0.0/go.mod h1:kxHyvyGeCRDUbr1HpCMWIr9+Ex5+fIQX+k8M3Wfoh5o=
+github.com/patrickmn/go-cache v2.1.0+incompatible h1:HRMgzkcYKYpi3C8ajMPV8OFXaaRUnok+kx1WdO15EQc=
+github.com/patrickmn/go-cache v2.1.0+incompatible/go.mod h1:3Qf8kWWT7OJRJbdiICTKqZju1ZixQ/KpMGzzAfe6+WQ=
 github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pelletier/go-toml v1.4.0 h1:u3Z1r+oOXJIkxqw34zVhyPgjBsm6X2wn21NWs/HfSeg=

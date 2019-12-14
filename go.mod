@@ -40,6 +40,7 @@ require (
 	github.com/oreqizer/go-jaywt v0.0.0-20170717110113-326c75d75a09 // indirect
 	github.com/oreqizer/go-relay v1.0.3
 	github.com/oreqizer/go-relaygen v1.0.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/client_golang v1.0.0 // indirect
