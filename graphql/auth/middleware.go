@@ -50,7 +50,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 
 			// Allow unauthenticated users in
 			if authID == "" {
-				next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), keyAuth, nil)))
+				next.ServeHTTP(w, r.WithContext(ctx))
 				return
 			}
 
@@ -81,7 +81,10 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 }
 
 func GetAuth(ctx context.Context) *Auth {
-	auth := ctx.Value(keyAuth).(*Auth)
+	auth, ok := ctx.Value(keyAuth).(*Auth)
+	if !ok {
+		return nil
+	}
 
 	return auth
 }
@@ -98,11 +101,7 @@ func GetAuthAccount(ctx context.Context) (*Auth, error) {
 
 func GetAuthAdmin(ctx context.Context) (*Auth, error) {
 	auth, err := GetAuthAccount(ctx)
-	if err != nil {
-		return nil, ErrNotAdmin
-	}
-
-	if !auth.Account.IsAdmin {
+	if err != nil || !auth.Account.IsAdmin {
 		return nil, ErrNotAdmin
 	}
 
