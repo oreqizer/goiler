@@ -72,7 +72,7 @@ func upgrade(m *migrate.Migrate) {
 
 func reset(m *migrate.Migrate, url string) {
 	log.Println("Migrating down")
-	if err := m.Down(); err != nil {
+	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
 	}
 
