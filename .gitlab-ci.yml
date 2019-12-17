@@ -5,7 +5,7 @@ stages:
   - release
 
 before_script:
-  - go get
+  - go get || true # Don't blow up when 'go' doesn't exist
 
 build:
   stage: build
