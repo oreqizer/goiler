@@ -25,7 +25,7 @@ const firebase = "firebase-private-key.json"
 func init() {
 	_ = godotenv.Load()
 
-	if dsn := os.Getenv("SENTRY"); dsn != "" {
+	if dsn := os.Getenv("SENTRY_DSN"); dsn != "" {
 		if err := raven.SetDSN(dsn); err != nil {
 			log.Fatal(err)
 		}
