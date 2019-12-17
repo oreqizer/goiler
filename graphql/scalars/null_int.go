@@ -5,6 +5,7 @@ import (
 	"github.com/volatiletech/null"
 )
 
+// MarshalNullInt allows marshalling 'null.Int'
 func MarshalNullInt(ni null.Int) graphql.Marshaler {
 	if !ni.Valid {
 		return graphql.Null
@@ -12,6 +13,7 @@ func MarshalNullInt(ni null.Int) graphql.Marshaler {
 	return graphql.MarshalInt(ni.Int)
 }
 
+// UnmarshalNullInt allows unmarshalling 'null.Int'
 func UnmarshalNullInt(v interface{}) (null.Int, error) {
 	if v == nil {
 		return null.Int{Valid: false}, nil

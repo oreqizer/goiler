@@ -5,6 +5,7 @@ import (
 	"github.com/volatiletech/null"
 )
 
+// MarshalNullString allows marshalling 'null.String'
 func MarshalNullString(ns null.String) graphql.Marshaler {
 	if !ns.Valid {
 		return graphql.Null
@@ -12,6 +13,7 @@ func MarshalNullString(ns null.String) graphql.Marshaler {
 	return graphql.MarshalString(ns.String)
 }
 
+// UnmarshalNullString allows unmarshalling 'null.String'
 func UnmarshalNullString(v interface{}) (null.String, error) {
 	if v == nil {
 		return null.String{Valid: false}, nil

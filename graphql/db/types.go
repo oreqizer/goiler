@@ -5,14 +5,12 @@ import (
 	"strconv"
 )
 
-type Average struct {
-	Average float64
-}
-
+// Interval holds information about an interval
 type Interval struct {
 	Seconds null.Int
 }
 
+// Format formats interval to a string
 func (i *Interval) Format() null.String {
 	if !i.Seconds.Valid {
 		return null.String{String: "", Valid: false}

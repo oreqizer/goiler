@@ -13,6 +13,7 @@ import (
 	"github.com/oreqizer/goiler/models"
 )
 
+// Node is the root node query
 func (Query) Node(ctx context.Context, id string) (generated.Node, error) {
 	dbi := db.GetDB(ctx)
 
@@ -31,6 +32,7 @@ func (Query) Node(ctx context.Context, id string) (generated.Node, error) {
 	return nil, db.ErrFetchingResults
 }
 
+// GetAccount gets an account by ID
 func GetAccount(ctx context.Context, dbi *sql.DB, id string) (*schemas.Account, error) {
 	a, err := auth.GetAuthAccount(ctx)
 	if err != nil {

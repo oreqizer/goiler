@@ -5,11 +5,13 @@ import (
 	"strconv"
 )
 
+// IntID holds information about an int ID
 type IntID struct {
 	Type string `json:"type"`
 	ID   int    `json:"id"`
 }
 
+// FromGlobalIntID creates a local ID from a global int-based ID
 func FromGlobalIntID(global string) (*IntID, error) {
 	local := relay.FromGlobalID(global)
 	id, err := strconv.Atoi(local.ID)

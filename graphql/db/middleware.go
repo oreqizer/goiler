@@ -12,6 +12,7 @@ type key struct {
 
 var keyDB = &key{"db"}
 
+// Middleware creates a db middleware
 func Middleware(db *sql.DB) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +23,7 @@ func Middleware(db *sql.DB) func(http.Handler) http.Handler {
 	}
 }
 
+// GetDB retrieves the DB instance from the context
 func GetDB(ctx context.Context) *sql.DB {
 	DB := ctx.Value(keyDB).(*sql.DB)
 

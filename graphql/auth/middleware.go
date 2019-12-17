@@ -7,7 +7,7 @@ import (
 	"github.com/getsentry/raven-go"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/models"
-	. "github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 	"net/http"
 	"strings"
 )
@@ -18,6 +18,7 @@ type key struct {
 
 var keyAuth = &key{"auth"}
 
+// Middleware creates the auth middleware
 func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -54,7 +55,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 				return
 			}
 
-			res, err := models.Accounts(db.QueryNotDeleted, Where("auth_id = ?", authID)).One(ctx, dbi)
+			res, err := models.Accounts(db.QueryNotDeleted, qm.Where("auth_id = ?", authID)).One(ctx, dbi)
 			if err == sql.ErrNoRows {
 				// No account yet, but has auth
 				ctx = context.WithValue(r.Context(), keyAuth, &Auth{
@@ -80,6 +81,7 @@ func Middleware(dbi *sql.DB, fb *firebase.App) func(http.Handler) http.Handler {
 	}
 }
 
+// GetAuth returns the auth context object
 func GetAuth(ctx context.Context) *Auth {
 	auth, ok := ctx.Value(keyAuth).(*Auth)
 	if !ok {
@@ -89,6 +91,8 @@ func GetAuth(ctx context.Context) *Auth {
 	return auth
 }
 
+// GetAuthAccount returns the auth context object if user has an account,
+// error otherwise
 func GetAuthAccount(ctx context.Context) (*Auth, error) {
 	auth := GetAuth(ctx)
 
@@ -99,6 +103,8 @@ func GetAuthAccount(ctx context.Context) (*Auth, error) {
 	return auth, nil
 }
 
+// GetAuthAdmin returns the auth context object if user is admin,
+// error otherwise
 func GetAuthAdmin(ctx context.Context) (*Auth, error) {
 	auth, err := GetAuthAccount(ctx)
 	if err != nil || !auth.Account.IsAdmin {

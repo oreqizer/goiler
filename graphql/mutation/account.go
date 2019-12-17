@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// AddAccount adds a new account
 func (Mutation) AddAccount(
 	ctx context.Context,
 	input generated.AddAccountInput,
@@ -44,6 +45,7 @@ func (Mutation) AddAccount(
 	return &res, nil
 }
 
+// EditAccount edits an account
 func (Mutation) EditAccount(
 	ctx context.Context,
 	input generated.EditAccountInput,
@@ -70,6 +72,7 @@ func (Mutation) EditAccount(
 	return &res, nil
 }
 
+// DeleteAccount marks an account as deleted
 func (Mutation) DeleteAccount(
 	ctx context.Context,
 	input generated.DeleteAccountInput,

@@ -7,6 +7,7 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 )
 
+// Seed fills the database with testing data
 func Seed(url string) error {
 	dbi, err := sql.Open("postgres", url)
 	if err != nil {

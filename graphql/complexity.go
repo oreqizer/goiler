@@ -2,8 +2,10 @@ package graphql
 
 import "github.com/oreqizer/goiler/generated"
 
+// DefaultListComplexity is the default complecity of a list
 const DefaultListComplexity = 20
 
+// Connection is the default complexity function for connections
 func Connection(child int, after *string, first *int, before *string, last *int) int {
 	if first != nil {
 		return child * *first

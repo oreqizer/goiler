@@ -10,6 +10,7 @@ import (
 	"github.com/oreqizer/goiler/models"
 )
 
+// Account retrieves the currently logged-in account, nil otherwise
 func (Query) Account(ctx context.Context) (*schemas.Account, error) {
 	a := auth.GetAuth(ctx)
 	if a == nil {
@@ -23,6 +24,7 @@ func (Query) Account(ctx context.Context) (*schemas.Account, error) {
 	return &schemas.Account{Account: *a.Account}, nil
 }
 
+// Accounts lists all accounts for admins
 func (Query) Accounts(
 	ctx context.Context,
 	after *string,

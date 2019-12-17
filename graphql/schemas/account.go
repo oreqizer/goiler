@@ -10,23 +10,29 @@ import (
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/slices"
 	"github.com/oreqizer/goiler/models"
-	. "github.com/volatiletech/sqlboiler/queries/qm"
+	"github.com/volatiletech/sqlboiler/queries/qm"
 )
 
+// TypeAccount is the name of the Account type
 const TypeAccount = "Account"
 
+// Account holds information about an account
 type Account struct {
 	models.Account
 }
 
+// IsNode satisfies the Node interface
 func (Account) IsNode() {}
 
+// ID satisfies the ID interface
 func (a *Account) ID() string {
 	return relay.ToGlobalID(TypeAccount, a.Account.ID)
 }
 
+// Accounts is a slice of model accounts
 type Accounts []*models.Account
 
+// ToSlice converts model accounts to gql accounts
 func (s Accounts) ToSlice() []*Account {
 	ns := make([]*Account, len(s))
 	for i, v := range s {
@@ -36,6 +42,7 @@ func (s Accounts) ToSlice() []*Account {
 	return ns
 }
 
+// MakeAccountLoader creates an account loader
 func MakeAccountLoader(ctx context.Context) *AccountLoader {
 	return NewAccountLoader(AccountLoaderConfig{
 		Fetch: func(keys []string) (accounts []*Account, errors []error) {
@@ -43,7 +50,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 
 			res, err := models.Accounts(
 				db.QueryNotDeleted,
-				WhereIn("id in ?", slices.StringsToInterfaces(keys)...),
+				qm.WhereIn("id in ?", slices.StringsToInterfaces(keys)...),
 			).All(ctx, dbi)
 			if err != nil {
 				raven.CaptureError(err, nil)
@@ -55,6 +62,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 	})
 }
 
+// GetAccountLoader retrieves the account loader from the context
 func GetAccountLoader(ctx context.Context) *AccountLoader {
 	acc := ctx.Value(keyAccount).(*AccountLoader)
 

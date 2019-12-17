@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// Config holds project configuration
 type Config struct {
 	// Port is the port to run the app on
 	Port string
@@ -42,6 +43,7 @@ func init() {
 	}
 }
 
+// New creates a new config
 func New() (*Config, error) {
 	config := &Config{
 		Port:     "8081",

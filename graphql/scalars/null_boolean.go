@@ -5,6 +5,7 @@ import (
 	"github.com/volatiletech/null"
 )
 
+// MarshalNullBoolean allows marshalling 'null.Bool'
 func MarshalNullBoolean(ni null.Bool) graphql.Marshaler {
 	if !ni.Valid {
 		return graphql.Null
@@ -12,6 +13,7 @@ func MarshalNullBoolean(ni null.Bool) graphql.Marshaler {
 	return graphql.MarshalBoolean(ni.Bool)
 }
 
+// UnmarshalNullBoolean allows unmarshalling 'null.Bool'
 func UnmarshalNullBoolean(v interface{}) (null.Bool, error) {
 	if v == nil {
 		return null.Bool{Valid: false}, nil
