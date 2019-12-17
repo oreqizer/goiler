@@ -23,6 +23,7 @@ import (
 	"google.golang.org/api/option"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func main() {
 
 	// CORS
 	r.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{cfg.Cors},
+		AllowedOrigins:   strings.Split(cfg.Cors, ","),
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodOptions},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
