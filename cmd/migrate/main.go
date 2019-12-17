@@ -17,14 +17,26 @@ CLI to reset (https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 migrate -path=migrations -database=<DB> drop
 */
 
+var staging = os.Getenv("STAGING") != ""
+
 func main() {
 	_ = godotenv.Load()
 
-	m, err := migrate.New(files, os.Getenv("DATABASE_URL"))
+	url := os.Getenv("DATABASE_URL")
+
+	m, err := migrate.New(files, url)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	if staging {
+		reset(m, url)
+	} else {
+		upgrade(m)
+	}
+}
+
+func upgrade(m *migrate.Migrate) {
 	v, dirty, err := m.Version()
 	if err != nil {
 		if err == migrate.ErrNilVersion {
@@ -55,4 +67,18 @@ func main() {
 	}
 
 	log.Printf("New version: %d\n", v)
+}
+
+func reset(m *migrate.Migrate, url string) {
+	if err := m.Drop(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := m.Up(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := seed(url); err != nil {
+		log.Fatal(err)
+	}
 }
