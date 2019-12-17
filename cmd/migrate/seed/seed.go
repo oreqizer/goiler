@@ -1,4 +1,4 @@
-package main
+package seed
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/volatiletech/sqlboiler/boil"
 )
 
-func seed(url string) error {
+func Seed(url string) error {
 	dbi, err := sql.Open("postgres", url)
 	if err != nil {
 		return err
