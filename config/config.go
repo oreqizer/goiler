@@ -31,6 +31,10 @@ func init() {
 		}
 	}
 
+	if env := os.Getenv("SENTRY_ENVIRONMENT"); env != "" {
+		raven.SetEnvironment(env)
+	}
+
 	if fb := os.Getenv("FIREBASE_KEY_FILE"); fb != "" {
 		if err := ioutil.WriteFile(firebase, []byte(fb), 0644); err != nil {
 			log.Fatal(err)
