@@ -11,7 +11,6 @@ import (
 	"github.com/oreqizer/goiler/graphql/slices"
 	"github.com/oreqizer/goiler/models"
 	"github.com/volatiletech/sqlboiler/queries/qm"
-	"time"
 )
 
 // TypeAccount is the name of the Account type
@@ -60,7 +59,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 
 			return Accounts(res).ToSlice(), nil
 		},
-		Wait: time.Millisecond * 50,
+		Wait: LoaderWait,
 	})
 }
 
