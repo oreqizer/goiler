@@ -1,6 +1,5 @@
 type Mutation {
     # Account
-    addAccount(input: AddAccountInput!): AddAccountPayload
-    editAccount(input: EditAccountInput!): EditAccountPayload
+    upsertAccount(input: UpsertAccountInput!): UpsertAccountPayload
     deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload
 }

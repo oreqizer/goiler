@@ -11,6 +11,7 @@ import (
 	"github.com/oreqizer/goiler/graphql/slices"
 	"github.com/oreqizer/goiler/models"
 	"github.com/volatiletech/sqlboiler/queries/qm"
+	"time"
 )
 
 // TypeAccount is the name of the Account type
@@ -50,7 +51,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 
 			res, err := models.Accounts(
 				db.QueryNotDeleted,
-				qm.WhereIn("id in ?", slices.StringsToInterfaces(keys)...),
+				qm.WhereIn("id IN ?", slices.StringsToInterfaces(keys)...),
 			).All(ctx, dbi)
 			if err != nil {
 				raven.CaptureError(err, nil)
@@ -59,6 +60,7 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 
 			return Accounts(res).ToSlice(), nil
 		},
+		Wait: time.Millisecond * 50,
 	})
 }
 

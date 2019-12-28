@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/getsentry/raven-go"
 	"github.com/joho/godotenv"
+	"github.com/volatiletech/sqlboiler/boil"
 	"io/ioutil"
 	"log"
 	"os"
@@ -40,6 +41,10 @@ func init() {
 		if err := ioutil.WriteFile(firebase, []byte(fb), 0644); err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	if d := os.Getenv("DEBUG"); d != "" {
+		boil.DebugMode = true
 	}
 }
 

@@ -1,13 +1,10 @@
 type Account implements Node {
     # The ID of an object
     id: ID!
-    authId: String!
     name: String!
     surname: String!
     email: String!
     isAdmin: Boolean!
-    createdAt: Time!
-    updatedAt: Time!
 }
 
 # A connection to a list of items.
@@ -28,25 +25,14 @@ type AccountEdge {
     cursor: String!
 }
 
-input AddAccountInput {
+input UpsertAccountInput {
     name: String!
     surname: String!
     email: String!
     clientMutationId: String
 }
 
-type AddAccountPayload {
-    account: Account
-    clientMutationId: String
-}
-
-input EditAccountInput {
-    name: String!
-    surname: String!
-    clientMutationId: String
-}
-
-type EditAccountPayload {
+type UpsertAccountPayload {
     account: Account
     clientMutationId: String
 }

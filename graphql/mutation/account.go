@@ -13,11 +13,11 @@ import (
 	"time"
 )
 
-// AddAccount adds a new account
-func (Mutation) AddAccount(
+// UpsertAccount adds a new account
+func (Mutation) UpsertAccount(
 	ctx context.Context,
-	input generated.AddAccountInput,
-) (*generated.AddAccountPayload, error) {
+	input generated.UpsertAccountInput,
+) (*generated.UpsertAccountPayload, error) {
 	dbi := db.GetDB(ctx)
 	a := auth.GetAuth(ctx)
 	if a == nil {
@@ -25,11 +25,10 @@ func (Mutation) AddAccount(
 	}
 
 	model := models.Account{
-		AuthID:    a.AuthID,
-		Name:      input.Name,
-		Surname:   input.Surname,
-		Email:     input.Email,
-		DeletedAt: null.TimeFromPtr(nil),
+		AuthID:  a.AuthID,
+		Name:    input.Name,
+		Surname: input.Surname,
+		Email:   input.Email,
 	}
 
 	if err := model.Upsert(ctx, dbi, true, []string{"auth_id"}, boil.Infer(), boil.Infer()); err != nil {
@@ -37,35 +36,8 @@ func (Mutation) AddAccount(
 		return nil, db.ErrDefault
 	}
 
-	res := generated.AddAccountPayload{
+	res := generated.UpsertAccountPayload{
 		Account:          &schemas.Account{Account: model},
-		ClientMutationID: input.ClientMutationID,
-	}
-
-	return &res, nil
-}
-
-// EditAccount edits an account
-func (Mutation) EditAccount(
-	ctx context.Context,
-	input generated.EditAccountInput,
-) (*generated.EditAccountPayload, error) {
-	dbi := db.GetDB(ctx)
-	a, err := auth.GetAuthAccount(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	a.Account.Name = input.Name
-	a.Account.Surname = input.Surname
-
-	if _, err := a.Account.Update(ctx, dbi, boil.Infer()); err != nil {
-		raven.CaptureError(err, nil)
-		return nil, db.ErrDefault
-	}
-
-	res := generated.EditAccountPayload{
-		Account:          &schemas.Account{Account: *a.Account},
 		ClientMutationID: input.ClientMutationID,
 	}
 

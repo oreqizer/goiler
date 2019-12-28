@@ -14,18 +14,6 @@ type Node interface {
 	IsNode()
 }
 
-type AddAccountInput struct {
-	Name             string  `json:"name"`
-	Surname          string  `json:"surname"`
-	Email            string  `json:"email"`
-	ClientMutationID *string `json:"clientMutationId"`
-}
-
-type AddAccountPayload struct {
-	Account          *schemas.Account `json:"account"`
-	ClientMutationID *string          `json:"clientMutationId"`
-}
-
 type DeleteAccountInput struct {
 	ClientMutationID *string `json:"clientMutationId"`
 }
@@ -35,13 +23,14 @@ type DeleteAccountPayload struct {
 	ClientMutationID *string `json:"clientMutationId"`
 }
 
-type EditAccountInput struct {
+type UpsertAccountInput struct {
 	Name             string  `json:"name"`
 	Surname          string  `json:"surname"`
+	Email            string  `json:"email"`
 	ClientMutationID *string `json:"clientMutationId"`
 }
 
-type EditAccountPayload struct {
+type UpsertAccountPayload struct {
 	Account          *schemas.Account `json:"account"`
 	ClientMutationID *string          `json:"clientMutationId"`
 }

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -47,14 +46,11 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Account struct {
-		AuthID    func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		Email     func(childComplexity int) int
-		ID        func(childComplexity int) int
-		IsAdmin   func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Surname   func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		Email   func(childComplexity int) int
+		ID      func(childComplexity int) int
+		IsAdmin func(childComplexity int) int
+		Name    func(childComplexity int) int
+		Surname func(childComplexity int) int
 	}
 
 	AccountConnection struct {
@@ -67,25 +63,14 @@ type ComplexityRoot struct {
 		Node   func(childComplexity int) int
 	}
 
-	AddAccountPayload struct {
-		Account          func(childComplexity int) int
-		ClientMutationID func(childComplexity int) int
-	}
-
 	DeleteAccountPayload struct {
 		ClientMutationID func(childComplexity int) int
 		DeletedID        func(childComplexity int) int
 	}
 
-	EditAccountPayload struct {
-		Account          func(childComplexity int) int
-		ClientMutationID func(childComplexity int) int
-	}
-
 	Mutation struct {
-		AddAccount    func(childComplexity int, input AddAccountInput) int
 		DeleteAccount func(childComplexity int, input DeleteAccountInput) int
-		EditAccount   func(childComplexity int, input EditAccountInput) int
+		UpsertAccount func(childComplexity int, input UpsertAccountInput) int
 	}
 
 	PageInfo struct {
@@ -100,11 +85,15 @@ type ComplexityRoot struct {
 		Accounts func(childComplexity int, after *string, first *int, before *string, last *int) int
 		Node     func(childComplexity int, id string) int
 	}
+
+	UpsertAccountPayload struct {
+		Account          func(childComplexity int) int
+		ClientMutationID func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	AddAccount(ctx context.Context, input AddAccountInput) (*AddAccountPayload, error)
-	EditAccount(ctx context.Context, input EditAccountInput) (*EditAccountPayload, error)
+	UpsertAccount(ctx context.Context, input UpsertAccountInput) (*UpsertAccountPayload, error)
 	DeleteAccount(ctx context.Context, input DeleteAccountInput) (*DeleteAccountPayload, error)
 }
 type QueryResolver interface {
@@ -127,20 +116,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "Account.authId":
-		if e.complexity.Account.AuthID == nil {
-			break
-		}
-
-		return e.complexity.Account.AuthID(childComplexity), true
-
-	case "Account.createdAt":
-		if e.complexity.Account.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.Account.CreatedAt(childComplexity), true
 
 	case "Account.email":
 		if e.complexity.Account.Email == nil {
@@ -177,13 +152,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Account.Surname(childComplexity), true
 
-	case "Account.updatedAt":
-		if e.complexity.Account.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.Account.UpdatedAt(childComplexity), true
-
 	case "AccountConnection.edges":
 		if e.complexity.AccountConnection.Edges == nil {
 			break
@@ -212,20 +180,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AccountEdge.Node(childComplexity), true
 
-	case "AddAccountPayload.account":
-		if e.complexity.AddAccountPayload.Account == nil {
-			break
-		}
-
-		return e.complexity.AddAccountPayload.Account(childComplexity), true
-
-	case "AddAccountPayload.clientMutationId":
-		if e.complexity.AddAccountPayload.ClientMutationID == nil {
-			break
-		}
-
-		return e.complexity.AddAccountPayload.ClientMutationID(childComplexity), true
-
 	case "DeleteAccountPayload.clientMutationId":
 		if e.complexity.DeleteAccountPayload.ClientMutationID == nil {
 			break
@@ -240,32 +194,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.DeleteAccountPayload.DeletedID(childComplexity), true
 
-	case "EditAccountPayload.account":
-		if e.complexity.EditAccountPayload.Account == nil {
-			break
-		}
-
-		return e.complexity.EditAccountPayload.Account(childComplexity), true
-
-	case "EditAccountPayload.clientMutationId":
-		if e.complexity.EditAccountPayload.ClientMutationID == nil {
-			break
-		}
-
-		return e.complexity.EditAccountPayload.ClientMutationID(childComplexity), true
-
-	case "Mutation.addAccount":
-		if e.complexity.Mutation.AddAccount == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addAccount_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddAccount(childComplexity, args["input"].(AddAccountInput)), true
-
 	case "Mutation.deleteAccount":
 		if e.complexity.Mutation.DeleteAccount == nil {
 			break
@@ -278,17 +206,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteAccount(childComplexity, args["input"].(DeleteAccountInput)), true
 
-	case "Mutation.editAccount":
-		if e.complexity.Mutation.EditAccount == nil {
+	case "Mutation.upsertAccount":
+		if e.complexity.Mutation.UpsertAccount == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_editAccount_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_upsertAccount_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.EditAccount(childComplexity, args["input"].(EditAccountInput)), true
+		return e.complexity.Mutation.UpsertAccount(childComplexity, args["input"].(UpsertAccountInput)), true
 
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
@@ -348,6 +276,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Node(childComplexity, args["id"].(string)), true
+
+	case "UpsertAccountPayload.account":
+		if e.complexity.UpsertAccountPayload.Account == nil {
+			break
+		}
+
+		return e.complexity.UpsertAccountPayload.Account(childComplexity), true
+
+	case "UpsertAccountPayload.clientMutationId":
+		if e.complexity.UpsertAccountPayload.ClientMutationID == nil {
+			break
+		}
+
+		return e.complexity.UpsertAccountPayload.ClientMutationID(childComplexity), true
 
 	}
 	return 0, false
@@ -420,8 +362,7 @@ enum Role {
 `},
 	&ast.Source{Name: "graphql/mutation/schema.graphql", Input: `type Mutation {
     # Account
-    addAccount(input: AddAccountInput!): AddAccountPayload
-    editAccount(input: EditAccountInput!): EditAccountPayload
+    upsertAccount(input: UpsertAccountInput!): UpsertAccountPayload
     deleteAccount(input: DeleteAccountInput!): DeleteAccountPayload
 }
 `},
@@ -461,13 +402,10 @@ type PageInfo {
 	&ast.Source{Name: "graphql/schemas/account.graphql", Input: `type Account implements Node {
     # The ID of an object
     id: ID!
-    authId: String!
     name: String!
     surname: String!
     email: String!
     isAdmin: Boolean!
-    createdAt: Time!
-    updatedAt: Time!
 }
 
 # A connection to a list of items.
@@ -488,25 +426,14 @@ type AccountEdge {
     cursor: String!
 }
 
-input AddAccountInput {
+input UpsertAccountInput {
     name: String!
     surname: String!
     email: String!
     clientMutationId: String
 }
 
-type AddAccountPayload {
-    account: Account
-    clientMutationId: String
-}
-
-input EditAccountInput {
-    name: String!
-    surname: String!
-    clientMutationId: String
-}
-
-type EditAccountPayload {
+type UpsertAccountPayload {
     account: Account
     clientMutationId: String
 }
@@ -540,20 +467,6 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_addAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 AddAccountInput
-	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNAddAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAddAccountInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_deleteAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -568,12 +481,12 @@ func (ec *executionContext) field_Mutation_deleteAccount_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_editAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_upsertAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 EditAccountInput
+	var arg0 UpsertAccountInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNEditAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐEditAccountInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUpsertAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐUpsertAccountInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -719,43 +632,6 @@ func (ec *executionContext) _Account_id(ctx context.Context, field graphql.Colle
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Account_authId(ctx context.Context, field graphql.CollectedField, obj *schemas.Account) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Account",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AuthID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Account_name(ctx context.Context, field graphql.CollectedField, obj *schemas.Account) (ret graphql.Marshaler) {
@@ -906,80 +782,6 @@ func (ec *executionContext) _Account_isAdmin(ctx context.Context, field graphql.
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Account_createdAt(ctx context.Context, field graphql.CollectedField, obj *schemas.Account) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Account",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Account_updatedAt(ctx context.Context, field graphql.CollectedField, obj *schemas.Account) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Account",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(time.Time)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _AccountConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *schemas.AccountConnection) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -1122,74 +924,6 @@ func (ec *executionContext) _AccountEdge_cursor(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _AddAccountPayload_account(ctx context.Context, field graphql.CollectedField, obj *AddAccountPayload) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AddAccountPayload",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Account, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*schemas.Account)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _AddAccountPayload_clientMutationId(ctx context.Context, field graphql.CollectedField, obj *AddAccountPayload) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AddAccountPayload",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ClientMutationID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
 func (ec *executionContext) _DeleteAccountPayload_deletedId(ctx context.Context, field graphql.CollectedField, obj *DeleteAccountPayload) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -1261,75 +995,7 @@ func (ec *executionContext) _DeleteAccountPayload_clientMutationId(ctx context.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _EditAccountPayload_account(ctx context.Context, field graphql.CollectedField, obj *EditAccountPayload) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "EditAccountPayload",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Account, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*schemas.Account)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _EditAccountPayload_clientMutationId(ctx context.Context, field graphql.CollectedField, obj *EditAccountPayload) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "EditAccountPayload",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ClientMutationID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_addAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_upsertAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1346,7 +1012,7 @@ func (ec *executionContext) _Mutation_addAccount(ctx context.Context, field grap
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_addAccount_args(ctx, rawArgs)
+	args, err := ec.field_Mutation_upsertAccount_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -1355,7 +1021,7 @@ func (ec *executionContext) _Mutation_addAccount(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddAccount(rctx, args["input"].(AddAccountInput))
+		return ec.resolvers.Mutation().UpsertAccount(rctx, args["input"].(UpsertAccountInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1364,51 +1030,10 @@ func (ec *executionContext) _Mutation_addAccount(ctx context.Context, field grap
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*AddAccountPayload)
+	res := resTmp.(*UpsertAccountPayload)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOAddAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAddAccountPayload(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_editAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Mutation",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_editAccount_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	rctx.Args = args
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().EditAccount(rctx, args["input"].(EditAccountInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*EditAccountPayload)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOEditAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐEditAccountPayload(ctx, field.Selections, res)
+	return ec.marshalOUpsertAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐUpsertAccountPayload(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_deleteAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1807,6 +1432,74 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UpsertAccountPayload_account(ctx context.Context, field graphql.CollectedField, obj *UpsertAccountPayload) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "UpsertAccountPayload",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Account, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*schemas.Account)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOAccount2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgraphqlᚋschemasᚐAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UpsertAccountPayload_clientMutationId(ctx context.Context, field graphql.CollectedField, obj *UpsertAccountPayload) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "UpsertAccountPayload",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClientMutationID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2960,8 +2653,26 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputAddAccountInput(ctx context.Context, obj interface{}) (AddAccountInput, error) {
-	var it AddAccountInput
+func (ec *executionContext) unmarshalInputDeleteAccountInput(ctx context.Context, obj interface{}) (DeleteAccountInput, error) {
+	var it DeleteAccountInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "clientMutationId":
+			var err error
+			it.ClientMutationID, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUpsertAccountInput(ctx context.Context, obj interface{}) (UpsertAccountInput, error) {
+	var it UpsertAccountInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -2981,54 +2692,6 @@ func (ec *executionContext) unmarshalInputAddAccountInput(ctx context.Context, o
 		case "email":
 			var err error
 			it.Email, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "clientMutationId":
-			var err error
-			it.ClientMutationID, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputDeleteAccountInput(ctx context.Context, obj interface{}) (DeleteAccountInput, error) {
-	var it DeleteAccountInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "clientMutationId":
-			var err error
-			it.ClientMutationID, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputEditAccountInput(ctx context.Context, obj interface{}) (EditAccountInput, error) {
-	var it EditAccountInput
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "surname":
-			var err error
-			it.Surname, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3084,11 +2747,6 @@ func (ec *executionContext) _Account(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "authId":
-			out.Values[i] = ec._Account_authId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "name":
 			out.Values[i] = ec._Account_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3106,16 +2764,6 @@ func (ec *executionContext) _Account(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "isAdmin":
 			out.Values[i] = ec._Account_isAdmin(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._Account_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "updatedAt":
-			out.Values[i] = ec._Account_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3188,32 +2836,6 @@ func (ec *executionContext) _AccountEdge(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var addAccountPayloadImplementors = []string{"AddAccountPayload"}
-
-func (ec *executionContext) _AddAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *AddAccountPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, addAccountPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AddAccountPayload")
-		case "account":
-			out.Values[i] = ec._AddAccountPayload_account(ctx, field, obj)
-		case "clientMutationId":
-			out.Values[i] = ec._AddAccountPayload_clientMutationId(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var deleteAccountPayloadImplementors = []string{"DeleteAccountPayload"}
 
 func (ec *executionContext) _DeleteAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *DeleteAccountPayload) graphql.Marshaler {
@@ -3243,32 +2865,6 @@ func (ec *executionContext) _DeleteAccountPayload(ctx context.Context, sel ast.S
 	return out
 }
 
-var editAccountPayloadImplementors = []string{"EditAccountPayload"}
-
-func (ec *executionContext) _EditAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *EditAccountPayload) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, editAccountPayloadImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("EditAccountPayload")
-		case "account":
-			out.Values[i] = ec._EditAccountPayload_account(ctx, field, obj)
-		case "clientMutationId":
-			out.Values[i] = ec._EditAccountPayload_clientMutationId(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -3284,10 +2880,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "addAccount":
-			out.Values[i] = ec._Mutation_addAccount(ctx, field)
-		case "editAccount":
-			out.Values[i] = ec._Mutation_editAccount(ctx, field)
+		case "upsertAccount":
+			out.Values[i] = ec._Mutation_upsertAccount(ctx, field)
 		case "deleteAccount":
 			out.Values[i] = ec._Mutation_deleteAccount(ctx, field)
 		default:
@@ -3389,6 +2983,32 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var upsertAccountPayloadImplementors = []string{"UpsertAccountPayload"}
+
+func (ec *executionContext) _UpsertAccountPayload(ctx context.Context, sel ast.SelectionSet, obj *UpsertAccountPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, upsertAccountPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UpsertAccountPayload")
+		case "account":
+			out.Values[i] = ec._UpsertAccountPayload_account(ctx, field, obj)
+		case "clientMutationId":
+			out.Values[i] = ec._UpsertAccountPayload_clientMutationId(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3645,10 +3265,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) unmarshalNAddAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAddAccountInput(ctx context.Context, v interface{}) (AddAccountInput, error) {
-	return ec.unmarshalInputAddAccountInput(ctx, v)
-}
-
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -3665,10 +3281,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) unmarshalNDeleteAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐDeleteAccountInput(ctx context.Context, v interface{}) (DeleteAccountInput, error) {
 	return ec.unmarshalInputDeleteAccountInput(ctx, v)
-}
-
-func (ec *executionContext) unmarshalNEditAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐEditAccountInput(ctx context.Context, v interface{}) (EditAccountInput, error) {
-	return ec.unmarshalInputEditAccountInput(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -3712,18 +3324,8 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
-	return graphql.UnmarshalTime(v)
-}
-
-func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
-	res := graphql.MarshalTime(v)
-	if res == graphql.Null {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
+func (ec *executionContext) unmarshalNUpsertAccountInput2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐUpsertAccountInput(ctx context.Context, v interface{}) (UpsertAccountInput, error) {
+	return ec.unmarshalInputUpsertAccountInput(ctx, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -4025,17 +3627,6 @@ func (ec *executionContext) marshalOAccountEdge2ᚖgithubᚗcomᚋoreqizerᚋgoi
 	return ec._AccountEdge(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOAddAccountPayload2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAddAccountPayload(ctx context.Context, sel ast.SelectionSet, v AddAccountPayload) graphql.Marshaler {
-	return ec._AddAccountPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOAddAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐAddAccountPayload(ctx context.Context, sel ast.SelectionSet, v *AddAccountPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._AddAccountPayload(ctx, sel, v)
-}
-
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -4068,17 +3659,6 @@ func (ec *executionContext) marshalODeleteAccountPayload2ᚖgithubᚗcomᚋoreqi
 		return graphql.Null
 	}
 	return ec._DeleteAccountPayload(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOEditAccountPayload2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐEditAccountPayload(ctx context.Context, sel ast.SelectionSet, v EditAccountPayload) graphql.Marshaler {
-	return ec._EditAccountPayload(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalOEditAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐEditAccountPayload(ctx context.Context, sel ast.SelectionSet, v *EditAccountPayload) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._EditAccountPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -4132,6 +3712,17 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return ec.marshalOString2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOUpsertAccountPayload2githubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐUpsertAccountPayload(ctx context.Context, sel ast.SelectionSet, v UpsertAccountPayload) graphql.Marshaler {
+	return ec._UpsertAccountPayload(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOUpsertAccountPayload2ᚖgithubᚗcomᚋoreqizerᚋgoilerᚋgeneratedᚐUpsertAccountPayload(ctx context.Context, sel ast.SelectionSet, v *UpsertAccountPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UpsertAccountPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
