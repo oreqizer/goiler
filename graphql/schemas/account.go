@@ -6,6 +6,7 @@ package schemas
 import (
 	"context"
 	"github.com/getsentry/raven-go"
+	"github.com/lib/pq"
 	"github.com/oreqizer/go-relaygen/relay"
 	"github.com/oreqizer/goiler/graphql/db"
 	"github.com/oreqizer/goiler/graphql/slices"
@@ -42,6 +43,10 @@ func (s Accounts) ToSlice() []*Account {
 	return ns
 }
 
+const queryAccountLoader = `(
+SELECT * FROM unnest(? :: UUID[]) WITH ORDINALITY
+) AS ids (id, ordering) ON ids.id = account.id`
+
 // MakeAccountLoader creates an account loader
 func MakeAccountLoader(ctx context.Context) *AccountLoader {
 	return NewAccountLoader(AccountLoaderConfig{
@@ -50,11 +55,12 @@ func MakeAccountLoader(ctx context.Context) *AccountLoader {
 
 			res, err := models.Accounts(
 				db.QueryNotDeleted,
-				qm.WhereIn("id IN ?", slices.StringsToInterfaces(keys)...),
+				qm.InnerJoin(queryAccountLoader, pq.StringArray(keys)),
+				qm.OrderBy("ids.ordering"),
 			).All(ctx, dbi)
 			if err != nil {
 				raven.CaptureError(err, nil)
-				return nil, []error{db.ErrFetchingResults}
+				return nil, []error{db.ErrLoader}
 			}
 
 			return Accounts(res).ToSlice(), nil
